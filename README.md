@@ -16,6 +16,16 @@ Questo progetto implementa un interprete per un linguaggio simile a Haskell scri
 * **`interpreter.sml`**: Il cuore del sistema. Definisce l'Abstract Syntax Tree (AST), il parser ricorsivo e l'evaluator. Qui risiede la logica per i tipi di valore come `VClosure` e `VThunk`.
 * **`main.sml`**: Gestisce la sessione interattiva, l'input dell'utente e il pipeline di esecuzione (Lexing -> Parsing -> Evaluation) mantenendo lo stato globale.
 
+graph LR
+    A[Source Code string] -->|Lexer| B(Token List)
+    B -->|Parser| C(AST Expression)
+    C -->|Evaluator| D{Eval Dispatch}
+    D -->|Lazy| E[VThunk]
+    D -->|Eager| F[Value: Int/Bool]
+    E -.->|forceValue| F
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#9f9,stroke:#333,stroke-width:2px
+
 ## 4. Esempio di Utilizzo (Snippet di Codice)
 
 ```haskell
@@ -31,6 +41,22 @@ in
 ## 5. Dettagli Tecnici (Per chi vuole approfondire)
 
 "Il sistema utilizza un tipo value personalizzato che include VThunk. Un thunk contiene l'espressione da valutare e un riferimento all'ambiente di definizione. Quando forzato (forceValue), il risultato viene calcolato e memorizzato in un memo ref mutabile."
+
+graph TD
+    subgraph Environment ["Environment (Heap)"]
+        Env[Env List]
+    end
+
+    subgraph Memory ["Heap Value"]
+        Thunk[VThunk / Closure]
+        Memo[Memo Ref]
+    end
+
+    Env -->|Contains Binding| Thunk
+    Thunk -->|Holds| Memo
+    Thunk -->|Captures env ref| Env
+    
+    linkStyle 2 stroke:red,stroke-width:4px,fill:none,stroke-dasharray: 5 5;
 
 ## 6. Limitazioni e Roadmap
 * **Sistema di Tipi:** Attualmente il type-checker è rudimentale e controlla solo discrepanze ovvie; manca un'inferenza completa stile Hindley-Milner.
