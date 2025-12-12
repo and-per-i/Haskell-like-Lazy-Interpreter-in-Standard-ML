@@ -1,20 +1,19 @@
-# Haskell-like Lazy Interpreter in Standard ML
+**Description:**
+This project implements an interpreter for a Haskell-like language written in Standard ML. The core of the interpreter supports essential functional paradigms including function abstraction, arithmetic, boolean logic, and, crucially, **lazy evaluation** with memoization. It includes a robust handler for mutual recursion within `let` expressions and top-level declarations.
 
-**Descrizione (Intro):**
-Questo progetto implementa un interprete per un linguaggio simile a Haskell scritto in Standard ML. Il core dell'interprete supporta paradigmi funzionali essenziali tra cui l'astrazione di funzioni, l'aritmetica, la logica booleana e, soprattutto, la **valutazione pigra (lazy evaluation)** con memoizzazione. Include un gestore robusto per la ricorsione mutua all'interno di espressioni `let` e dichiarazioni top-level.
+## 2. Key Features
 
-## 2. Caratteristiche Principali (Key Features)
+* **Lazy Evaluation & Memoization:** Expressions are not evaluated until needed. Results are cached (memoized) to avoid future re-computations, utilizing `VThunk` data structures.
+* **Advanced Environment Management:** Utilization of SML `ref` to handle mutable state required for memoization and for closing recursive environments.
+* **Mutual Recursion (Tying the Knot):** Implementation of the "tying the knot" technique to allow functions and `let` expressions to refer to themselves or each other during definition, manipulating environment references (`env ref`).
+* **Modular Architecture:** Clean separation between Lexer, Core Interpreter (AST, Parser, Evaluator), and Main Driver (REPL).
 
-* **Valutazione Pigra & Memoizzazione:** Le espressioni non vengono valutate finché non sono necessarie. I risultati vengono salvati (memoizzati) per evitare ricalcoli futuri, utilizzando strutture dati `VThunk`.
-* **Gestione Avanzata dell'Ambiente:** Utilizzo di `ref` in SML per gestire lo stato mutabile necessario per la memoizzazione e per la chiusura degli ambienti ricorsivi.
-* **Ricorsione Mutua (Tying the Knot):** Implementazione della tecnica "tying the knot" per permettere a funzioni ed espressioni `let` di riferirsi a se stesse o l'una all'altra durante la definizione, manipolando i riferimenti all'ambiente (`env ref`).
-* **Architettura Modulare:** Separazione netta tra Lexer, Core Interpreter (AST, Parser, Evaluator) e Main Driver (REPL).
+## 3. Project Architecture
 
-## 3. Architettura del Progetto
+* **`lexer.sml`**: Handles lexical analysis by converting raw text into a token stream. Supports integers, identifiers, keywords, and string/char literals.
+* **`interpreter.sml`**: The core of the system. Defines the Abstract Syntax Tree (AST), recursive parser, and evaluator. This houses the logic for value types like `VClosure` and `VThunk`.
+* **`main.sml`**: Manages the interactive session, user input, and execution pipeline (Lexing -> Parsing -> Evaluation) maintaining global state.
 
-* **`lexer.sml`**: Gestisce l'analisi lessicale convertendo il testo grezzo in un flusso di token. Supporta interi, identificatori, keyword e letterali stringa/char.
-* **`interpreter.sml`**: Il cuore del sistema. Definisce l'Abstract Syntax Tree (AST), il parser ricorsivo e l'evaluator. Qui risiede la logica per i tipi di valore come `VClosure` e `VThunk`.
-* **`main.sml`**: Gestisce la sessione interattiva, l'input dell'utente e il pipeline di esecuzione (Lexing -> Parsing -> Evaluation) mantenendo lo stato globale.
 
 ```mermaid
 graph LR
@@ -27,21 +26,21 @@ graph LR
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style F fill:#9f9,stroke:#333,stroke-width:2px
 ```
-## 4. Esempio di Utilizzo (Snippet di Codice)
+## 4. Example 
 
 ```haskell
-// Esempio di valutazione pigra e ricorsione
+// Example of lazy evaluation and recursion
 let 
   isEven = \n -> if n == 0 then true else isOdd (n - 1);
   isOdd  = \n -> if n == 0 then false else isEven (n - 1);
 in
   isEven 4
-// Output: true (valutato solo quando richiesto)
+// Output: true (evaluated only when requested)
 ```
 
-## 5. Dettagli Tecnici (Per chi vuole approfondire)
+## 5. Technical Details
 
-"Il sistema utilizza un tipo value personalizzato che include VThunk. Un thunk contiene l'espressione da valutare e un riferimento all'ambiente di definizione. Quando forzato (forceValue), il risultato viene calcolato e memorizzato in un memo ref mutabile."
+The system uses a custom value type that includes VThunk. A thunk contains the expression to be evaluated and a reference to the definition environment. When forced (forceValue), the result is calculated and stored in a mutable memo ref.
 
 ```mermaid
 graph TD
@@ -61,9 +60,7 @@ graph TD
     linkStyle 2 stroke:red,stroke-width:4px,fill:none,stroke-dasharray: 5 5;
 ```
 
-## 6. Limitazioni e Roadmap
-* **Sistema di Tipi:** Attualmente il type-checker è rudimentale e controlla solo discrepanze ovvie; manca un'inferenza completa stile Hindley-Milner.
-
-* **Subset del Linguaggio:** Mancano pattern matching, tipi di dati algebrici e list comprehension.
-
-* **Segnalazione Errori:** I messaggi di errore potrebbero essere più precisi riguardo alla posizione nel codice sorgente.
+## 6. Limitations & Roadmap
+- Type System: Currently, the type-checker is rudimentary and checks only obvious discrepancies; it lacks full Hindley-Milner style inference.
+- Language Subset: Pattern matching, algebraic data types, and list comprehensions are missing.
+- Error Reporting: Error messages could be more precise regarding source code position.
